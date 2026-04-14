@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bola oito Mágica </title>
+    <style>
+        body {
+            background-color: #524d4f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family:Verdana, Geneva, Tahoma, sans-serif, Calibri, 'Trebuchet MS', sans-serif;
+            margin: 0;
+        }
+
+        h1 {
+            color: #c9a84c;
+            letter-spacing: 0.1em;
+            margin-top: 100px;
+            margin-bottom: 3rem;
+        }
+
+        #bola {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 55% 25%,
+                #2e2e2e 0%,
+                #141414 40%,
+                #040404 100%
+                );
+
+            display: flex;
+            align-items: center;    
+            justify-content: center;
+            cursor: grab;
+            transform: none;
+            }
+
+            #circulo-interno{
+            content:'';
+            width: 50%;
+            height: 50%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fdfdff, #f4f4f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background-clip: padding-box;
+            transition: background 0.6s ease;
+
+        }
+
+            #circulo-interno.ativado {
+            background: radial-gradient(circle, #1d1b1b, #161618);
+        }
+
+        #numero {
+            font-size: 5rem;
+            color: rgb(19, 19, 19);
+            position: absolute;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+            position: absolute;
+        }
+
+        #triangulo{
+            width: 0;
+            height: 0;
+            border-left: 42px solid transparent;
+            border-right: 42px solid transparent;
+            border-bottom: 75px solid #0f2a7a;
+            opacity: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-42px, -36px);
+            position: absolute;
+            transition: opacity 3.6s ease;
+            z-index: 1;
+            position: absolute;
+
+        }
+
+        #resposta {
+            position: absolute;
+            font: 100;
+            top: 25px;
+            left: -42px;
+            width: 84px;
+            text-align: center;
+            color: #ffffff;
+            font-style: italic;
+            font-size: 0.6rem;
+            line-height: 1.4;
+            margin: 0;
+            transition: opacity 5s ease;
+        }
+
+        #dica{
+            margin-top: 2rem;
+            color: rgba(201, 168, 76, 0.5);
+            font-style:italic
+        }
+
+        #dica2{
+            margin-top: 2rem;
+            color: rgba(201, 168, 76, 0.5);
+            font-style:italic
+        }
+
+        @keyframes shake {
+
+            0% {transform: translate(0,0) rotate(0deg);}
+            20% {transform: translate(-10px, -7px) rotate(-3deg);}
+            40% {transform: translate(10px, -7px) rotate(3deg);}
+            60% {transform: translate(-12px, 7px) rotate(-4deg);}
+            80% {transform: translate(14px, 10px) rotate(4deg);}
+            100% {transform: translate(0, 0) rotate(0deg);}
+        }
+
+        #bola.sacudindo{
+            animation: shake 0.65s infinite;
+            transform: none;
+        }
+
+        #bola.parando{
+            animation: shake 0.5s ease-out 1;
+            transform: none;
+        }
+
+        #liquido {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 30%, #2a2a2a, #000);
+        top: -50%;
+        left: -50%;
+        opacity: 0;
+        filter: blur(8px);
+        transition: opacity 0.8s ease;
+        z-index: 0;
+    }
+
+        @keyframes girarLiquido {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.1); }
+        100% { transform: rotate(360deg) scale(1); }
+        }
+
+        #circulo-interno.ativado #liquido {
+        opacity: 1;
+        animation: girarLiquido 3s linear infinite;
+    }
+
+    #triangulo {
+    opacity: 0;
+    transform: translate(-42px, -36px) scale(0.8);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+    #triangulo.mostrar {
+    opacity: 1;
+    transform: translate(-42px, -36px) scale(1);
+}
+
+    </style>
+</head>
+<body>
+    <h1>BOLA OITO MÁGICA</h1>
+
+    <div id="bola">
+        <div id="circulo-interno">
+            <div id="liquido"></div>
+            <span id="numero">8</span>
+            <div id="triangulo">
+                <p id="resposta"></p>
+            </div>
+        </div>
+    </div>
+
+<p id="dica">Pense em algo e a bola mágica responderá!</p>
+<p id="dica2">Aperte e segure até aparecer a resposta</p>
+
+<script>
+
+    let segurando = false
+    let timer = null
+    let jarespondeu = false
+
+    function resetar() {
+    
+    const circulo = document.getElementById('circulo-interno')
+    const triangulo = document.getElementById('triangulo')
+    const numero = document.getElementById('numero')
+    const dica = document.getElementById('dica')
+    const liquido = document.getElementById('liquido')
+
+    circulo.classList.remove('ativado')
+
+    triangulo.classList.remove('mostrar')
+    numero.style.opacity    = '1'
+    dica.style.opacity      = '1'
+
+    liquido.style.opacity = '0'
+    liquido.style.animation = 'none'
+
+    jarespondeu = false
+    
+    document.getElementById('circulo-interno').classList.remove('ativado')
+}
+    
+
+
+function inciarBalanco(){
+    clearTimeout(timer)
+
+    if (jarespondeu) {
+        resetar()
+    }
+    
+    const numero = document.getElementById('numero')
+    numero.style.opacity = '0'
+
+    document.getElementById('circulo-interno').classList.add('ativado')
+    segurando = true
+    bola.classList.add('sacudindo')
+
+    timer = setTimeout(function(){
+        if (segurando && !jarespondeu){
+            mostrarResposta()
+        }
+    }, 2000)
+}
+
+    function pararBalanco() {
+        
+        segurando = false
+        clearTimeout(timer)
+
+
+        bola.classList.remove('sacudindo')
+        bola.classList.add('parando')
+        
+        setTimeout(function(){bola.classList.remove('parando')}, 600)
+    setTimeout(() => {bola.style.transform = 'none'}, 600)
+    }
+
+
+async function mostrarResposta(){
+
+    jarespondeu = true
+
+    const resposta = document.getElementById('resposta')
+    const triangulo = document.getElementById('triangulo')
+    const numero = document.getElementById('numero')
+    const dica = document.getElementById('dica')
+
+    const resultado = await fetch('/shake')
+    const dados = await resultado.json()
+
+    numero.style.opacity = '0'
+
+    triangulo.classList.add('mostrar')
+    resposta.textContent = dados.resposta
+
+    dica.style.opacity = '0'
+
+    setTimeout(() => {resetar()}, 4000)
+}
+
+const bola = document.getElementById("bola")
+bola.addEventListener('mousedown', inciarBalanco)
+bola.addEventListener('mouseup', pararBalanco)
+
+</script>
+
+</body>
+</html>
